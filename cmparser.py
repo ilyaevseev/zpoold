@@ -15,66 +15,111 @@ class cmparser(object):
 
 class zpool_list_h(cmparser):
     def __init__(self):
-        self.structure_dict = ordereddict({ 
-                    'name':'',
-                    'full_size':'',
-                    'm_size':'',
-                    'full_size2':'',
-                    'usage':'',
-                    'speed':'',
-                    'status':'',
-                    'other_part':'',
-                    })
+        self.structure_dict = ordereddict([
+                    ('name',''),
+                    ('full_size',''),
+                    ('m_size',''),
+                    ('full_size2',''),
+                    ('usage',''),
+                    ('speed',''),
+                    ('status',''),
+                    ('other_part',''),
+                    ])
     def get_zpool_list_h(self, commands = ['zpool', 'list', '-H']):
         out, error = self.execute(commands)
         if error !='' or None:
-            raise Exception('There is no zpool avialable')
-            exit(2)
+            raise Exception('There is no zpool avialable, {Error %s}' % error)
+            exit(1)
         else:
-            for line in out.splitlines():
-                for word in line.split(None):
-                    for key in self.structure_dict.keys():
-                        self.structure_dict[key] = word
-                self.list_of_structures.append(self.structure_dict)        
-                #TODO parse out structure
+            for line in out.splitlines()[1:]:
+                for key, word in zip(self.structure_dict.keys(),line.split(None)):
+                    self.structure_dict[key] = word
+                self.list_of_structures.append(self.structure_dict)
             return self.list_of_structures
 
 class zpool_autoreplace(cmparser):
     def __init__(self):
-        self.structure_dict = ordereddict({ 
-                    'name':'',
-                    'property':'',
-                    'value':'',
-                    'source':'',
-                    })
+        self.structure_dict = ordereddict([
+                    ('name',''),
+                    ('property',''),
+                    ('value',''),
+                    ('source',''),
+                    ])
     def get_autoreplace(self, commands = ['zpool','get','autoreplace']):
         out, error = self.execute(commands)
         if error !='' or None:
-            raise Exception('There is no zpool avialable')
-            exit(2)
+            raise Exception('There is no zpool avialable, {Error %s}' % error)
+            exit(1)
         else:
-            pass
-        #TODO fill the structure 
+            for line in out.splitlines()[1:]:
+                for key, word in zip(self.structure_dict.keys(),line.split(None)):
+                    self.structure_dict[key] = word
+                self.list_of_structures.append(self.structure_dict)
+            return self.list_of_structures
 
 class zpool_status(cmparser):
     def __init__(self):
-        self.structure_dict = ordereddict({ 
-            'pool':'',
-            'state':'',
-            'scan':'',
-            'config': {'name':'',
-                'state':'',
-                'read':'',
-                'write':'',
-                'cssum':'',
-                }
-            })
-    def get_zpool_status(self, zpool_name, commands = ['zpool','status', 'zpool_name', '-v']):
-        commands[2] = zpool_name
-        out, error = self.execute(commands)
-        if error !='' or None:
-            raise Exception('There is no zpool avialable')
-            exit(2)
-        else:
-            pass
-    
+        self.config = ordereddict([
+            ('name',''),
+            ('state',''),
+            ('read',''),
+            ('write',''),
+            ('cksum',''),
+            ])
+        self.structure_dict = ordereddict([
+            ('pool',''),
+            ('state',''),
+            ('scan',''),
+            ('action',''),
+            ('see',''),
+            ('scrub',''),
+            ('status',''),
+            ('config', ''),
+            ('errors',''),
+            ])
+    def get_zpool_status(self, zpool_name, out ,commands = ['zpool','status', 'zpool_name', '-v']):
+        #commands[2] = zpool_name
+        #out, error = self.execute(commands)
+        #if error !='' or None:
+        #    raise Exception('There is no zpool avialable, {Error %s}' % error)
+        #    exit(1)
+        stopwords = self.structure_dict.keys()
+        prev_word = ''; i = 0
+        for line in out.splitlines():
+            row = line.split(None)
+            if len(row) > 0:
+                cur_word = row[0][:-1]
+                if row[0][:-1] in stopwords:
+                    if row[0][:-1] == 'pool':
+                        self.structure_dict['pool'] = row[1]
+                        prev_word = 'pool'
+                    elif row[0][:-1] == 'state':
+                        self.structure_dict['state'] = row[1]
+                        prev_word = 'state'
+                    elif row[0][:-1] == 'state':
+                        self.structure_dict['scan'] = row[1]
+                        prev_word = 'scan'
+                    elif row[0][:-1] == 'errors':
+                        self.structure_dict['errors'] = row[1]
+                        prev_word = 'errors'
+                    elif row[0][:-1] == 'config':
+                        self.structure_dict['config'] = ''
+                        prev_word = 'config'
+                else:
+                    if prev_word == 'config':
+                        i+=1
+                        if i > 1:
+                            for word, key in zip(row[:5], self.config.keys()):
+                                #print (word,key)
+                                self.config[key] = word
+                            #print self.config
+                            print self.config
+                    if prev_word == 'error':
+                        pass
+
+        #print self.structure_dict
+
+
+
+
+
