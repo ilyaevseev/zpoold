@@ -1,29 +1,45 @@
-from cmparser import zpool_status
+from cmparser import zpool_status, zpool_autoreplace, zpool_list_h
 
-ztest = '''
-  pool: tank
- state: UNAVAIL
-status: One or more devices are faulted in response to IO failures.
-action: Make sure the affected devices are connected, then run 'zpool clear'.
-   see: http://www.sun.com/msg/ZFS-8000-HC
- scrub: scrub completed after 0h0m with 0 errors on Tue Sep  1 09:51:01 2009
+zpool_list_str = '''
+archive 464G    167G    297G    35%     1.00x   ONLINE  -
+ssd     69,5G   28,1G   41,4G   40%     1.00x   ONLINE  -
+'''
+
+zpool_status_str = '''
+pool: archive
+ state: ONLINE
+  scan: none requested
 config:
 
-        NAME        STATE     READ WRITE CKSUM
-        tank        UNAVAIL      0     0     0  insufficient replicas
-          c1t0d0    ONLINE       0     0     0
-          c1t1d0    UNAVAIL      4     1     0  cannot open
+        NAME                                            STATE     READ WRITE CKSUM
+        archive                                         ONLINE       0     0     0
+          mirror-0                                      ONLINE       0     0     0
+            ata-Hitachi_HUA722050CLA330_JPW9K0J826PUZL  ONLINE       0     0     0
+            ata-Hitachi_HUA722050CLA330_JPW9K0J826Y44L  ONLINE       0     0     0
+          mirror-1                                      ONLINE       0     0     0
+            ata-WDC_WD5003ABYX-01WERA1_WD-WMAYP2901450  ONLINE       0     0     0
+            ata-WDC_WD5003ABYX-01WERA1_WD-WMAYP2924234  ONLINE       0     0     0
 
-errors: Permanent errors have been detected in the following files: 
+errors: No known data errors
+'''
 
-/tank/data/aaa
-/tank/data/bbb
-/tank/data/ccc
+zpool_autoreplace_str = '''
+NAME     PROPERTY     VALUE    SOURCE
+archive  autoreplace  on       local    default
+tank     autoreplace  on       local    
+mgb      not-autoreplace off   local
 '''
 
 def zpool_test():
-    z = zpool_status()
-    z.get_zpool_status('name', ztest)
+    zl = zpool_list_h()
+    zs = zpool_status()
+    za = zpool_autoreplace()
+    print zl.get_zpool_list_h()
+    print zs.get_zpool_status("archive")
+    print za.get_autoreplace()
+
+
+
 if __name__ == '__main__':
     zpool_test()
 
