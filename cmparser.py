@@ -32,7 +32,6 @@ class zpool_list_h(cmparser):
 
     def get_zpool_list_h(self, commands = ['zpool', 'list', '-H']):
         out, error = self.execute(commands)
-        error = None
         if error != None:
             raise Exception('There is no zpool avialable, {Error %s}' % error)
             exit(1)
@@ -54,7 +53,6 @@ class zpool_autoreplace(cmparser):
         self.list_of_structures = []
     def get_autoreplace(self, commands = ['zpool','get','autoreplace']):
         out, error = self.execute(commands)
-        error = None
         if error != None:
             raise Exception('There is no zpool avialable, {Error %s}' % error)
             exit(1)
@@ -88,7 +86,6 @@ class zpool_status(cmparser):
     def get_zpool_status(self, zpool_name, commands = ['zpool','status', 'zpool_name', '-v']):
         commands[2] = zpool_name
         out, error = self.execute(commands)
-        error = None
         if error != None:
             raise Exception('There is no zpool avialable, {Error %s}' % error)
             exit(1)
