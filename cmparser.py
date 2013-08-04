@@ -9,7 +9,7 @@ from collections import OrderedDict as ordereddict
 class cmparser(object):
     def isLinux(self):
         if not platform.system().lower().startswith('linux'):
-            raise Exception('is not Linux platform, this daemon will only on Linux')
+            raise Exception('is not Linux platform, this daemon for Linux only')
 
     def execute(self, commands):
         self.isLinux()
@@ -83,6 +83,30 @@ class zpool_status(cmparser):
             ('config', []),
             ('errors', []),
             ])
+        
+    def isHealthy(self, commands = ['zpool', 'status', '-x']):
+        out, error = self.execute(commands)
+        if error != None:
+            raise Exception('There is no zpool avialable, {Error %s}' % error)
+            exit(1)
+        else:
+            if out.strip().find('all pools are healthy') != -1:
+                return True
+            else:
+                return False
+
+    def replaceDisk(self, zpool_name, new_disk, failed_disk, commands = ['zpool','replace',\
+            'zpool_name', 'new_disk', 'failed_disk']):
+        commands[2] = zpool_name
+        commands[3] = new_disk
+        commands[4] = failed_disk
+        out, error = self.execute(commands)
+        if error != None:
+            raise Exception('There is no zpool avialable, {Error %s}' % error)
+            exit(1)
+        else:
+            return 0
+
     def get_zpool_status(self, zpool_name, commands = ['zpool','status', 'zpool_name', '-v']):
         commands[2] = zpool_name
         out, error = self.execute(commands)
@@ -96,7 +120,6 @@ class zpool_status(cmparser):
             for line in out.splitlines():
                 row = line.split(None)
                 if len(row) > 0:
-                    cur_word = row[0][:-1]
                     if row[0][:-1] in stopwords:
                         if row[0][:-1] == 'pool':
                             self.structure_dict['pool'] = row[1:]
@@ -125,3 +148,54 @@ class zpool_status(cmparser):
             self.structure_dict['config'].append(config)
             i,g = 0,0
             return self.structure_dict
+
+class diskmap(cmparser):
+    def __init__(self):
+        self.structure_dict = ordereddict([
+            ('name',''),
+            ('uniq', ''),
+            ])
+        self.disk_map = []
+
+    def findPathByName(self, name, commands=['find','/dev', '-name', 'disk_name']):
+        commands[3] = name
+        pathByName = ''
+        out, error = self.execute(commands)
+        if error != None:
+            raise Exception('There is no zpool avialable, {Error %s}' % error)
+            exit(1)
+        if out == 'None':
+            #could not find path by name
+            return -1
+        else:
+            for line in [i for i in out.splitlines() if i!='']:
+                pathByName = line
+        return pathByName
+
+    def findIdBySymLinks(self, name, commands = ['find', '-L', '/dev/disk/',\
+            '-samefile', 'pathByName']):
+        commands[4] = name
+        out, error = self.execute(commands)
+        if error != None:
+            raise Exception('There is no zpool avialable, {Error %s}' % error)
+        else:
+            ids = {}
+            while(len(ids) < 2):
+                for line in [i for i in out.splitlines() if i!='']:
+                    if line.strip().find('by-path') != -1:
+                        ids['by-path'] = line
+                    if line.strip().find('by-id') != -1:
+                        ids['by-id'] = line
+            return ids
+
+    def getdiskMap(self, zpoolnames):
+        for name in zpoolnames:
+            current_path = self.findPathByName(name) 
+            if current_path != -1:
+                path = current_path 
+            ids = self.findIdBySymLinks(path)
+            self.structure_dict['name'] = name
+            self.structure_dict['uniq'] = ids
+            self.disk_map.append(self.structure_dict.copy())
+        return self.disk_map
+
