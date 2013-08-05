@@ -21,7 +21,7 @@ class zpoold(Daemon):
     def setUp(self):
         zl = zpool_list_h()
         zs = zpool_status()
-        mail = mail_notification(email['host'], email['port'], email['name'], email['password'])
+        mail = mail_notification(email['host'], email['port'], email['name'], email['password'], usetls = False)
         dm = diskmap()
         #get full list of avialable zpool names
         zname = [zname['name'] for zname in zl.get_zpool_list_h()]

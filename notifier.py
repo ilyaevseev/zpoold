@@ -16,14 +16,17 @@ class notification(object):
         pass
     
 class mail_notification(notification):
-    def __init__(self, host, port, name, password):
+    def __init__(self, host, port, name, password, usetls = True):
         super(mail_notification, self).__init__(host, port, name, password)
         try:
-            self.server = smtplib.SMTP(host, port)
-            self.server.ehlo()
-            self.server.starttls()
-            self.server.ehlo()
-            self.server.login(name, password)
+            if usetls:
+                self.server = smtplib.SMTP(self.host, self.port)
+                self.server.ehlo()
+                self.server.starttls()
+                self.server.ehlo()
+                self.server.login(self.name, self.password)
+            else:
+                self.server = smtplib.SMTP(self.host, self.port)
         except Exception, e:
             print "Could not create connection %s" % e
 
