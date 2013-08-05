@@ -193,6 +193,7 @@ class diskmap(cmparser):
             current_path = self.findPathByName(name) 
             if current_path != -1 or '':
                 path = current_path 
+            print path
             ids = self.findIdBySymLinks(path)
             self.structure_dict['name'] = name
             self.structure_dict['uniq'] = ids
