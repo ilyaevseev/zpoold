@@ -188,8 +188,8 @@ class diskmap(cmparser):
                         ids['by-id'] = line
             return ids
 
-    def getdiskMap(self, zpoolnames):
-        for name in zpoolnames:
+    def getdiskMap(self, disks):
+        for name in disks:
             current_path = self.findPathByName(name) 
             if current_path != -1:
                 path = current_path 

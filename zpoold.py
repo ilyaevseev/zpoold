@@ -1,22 +1,45 @@
-from cmparser import zpool_status,zpool_list_h, zpool_autoreplace
+from cmparser import zpool_status,zpool_list_h, zpool_autoreplace, diskmap
 from daemon import Daemon
 from threading import Timer
 
-class zpoold():
+class zpoold(object):
     def setUp(self):
-        zpool_list = zpool_list_h()
-        zpool_stat = zpool_status()
-        zpool_auto = zpool_autoreplace()
-        print 'starting:\n'
-        out = zpool_list.get_zpool_list_h()
-        print 'list of zpool:\n'
-        for o['name'] in out:
-            print o['name']
-        print 'zpool list -H %s\n' % (o['name'] for o in out)
-        for o['name'] in out:
-            print zpool_stat.get_zpool_status(o['name'])
-        print 'get autoreplace:\n'
-        print zpool_auto.get_autoreplace()
+        zl = zpool_list_h()
+        za = zpool_autoreplace()
+        zs = zpool_status()
+        dm = diskmap()
+        #get full list of avialable zpool names
+        zname = [zname['name'] for zname in zl.get_zpool_list_h()]
+        #get config
+        print zname
+        print '\n'
+        zconf = []
+        for name in zname:
+            zconf.append(zs.get_zpool_status(name))
+        print zconf
+        conf = zconf['config']
+        names = []
+        for conf in zconf['name']:
+            names.append(conf)
+        print 'names:'
+        print names
+        full_paths = []
+        for name in names:
+            full_paths.append(dm.findPathByName(name))
+        print 'Full paths:'
+        print full_paths
+        ids = []
+        for path in full_paths:
+            ids.append(dm.findIdBySymLinks(path))
+        print 'ids:'
+        print ids
+        print '\n'
+        print 'disk map:'
+        print dm.getdiskMap(names)
+        
 
-z = zpoold()
-z.setUp()
+
+if __name__ == '__main__':
+    z = zpoold()
+    z.setUp()
+
