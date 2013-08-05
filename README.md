@@ -3,9 +3,10 @@ zpoold
 
 zpool autochange disk daemon 
 
-functionality
---base structures:
+### functionality:
+#### base structures:
 
+ ```python
 get_zpool_list_h() method returns:
 
 [OrderedDict([('name', 'archive'),
@@ -64,3 +65,4 @@ get_autoreplace() method returns:
 ('property', 'autoreplace'),
 ('value', 'off'),
 ('source', 'default')])]
+```
