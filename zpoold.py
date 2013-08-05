@@ -16,20 +16,22 @@ class zpoold(object):
         #get all disk names
         zconf = []
         disk_names = []
+        zconf = []
+        disk_names = []
         for name in zname:
             zconf.append(zs.get_zpool_status(name))
             for z in zconf:
                 conf = z['config']
                 for name in conf:
-                    disk_names.append(disk_names['name'])
+                    for n in name:
+                        disk_names.append(n['name'])
         print disk_names
-
-
-
-        '''full_paths = []
-        for name in names:
-            full_paths.append(dm.findPathByName(name))
-        print 'Full paths:'
+        full_paths = []
+        #get full paths of the disks
+        for disk in disk_names:
+            full_paths.append(dm.findPathByName(disk))
+        print full_paths 
+        '''print 'Full paths:'
         print full_paths
         ids = []
         for path in full_paths:
