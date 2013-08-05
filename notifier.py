@@ -22,7 +22,7 @@ class mail_notification(notification):
             self.server = smtplib.SMTP(host, port)
             self.server.ehlo()
             self.server.starttls()
-            self.erver.ehlo()
+            self.server.ehlo()
             self.server.login(name, password)
         except Exception, e:
             print "Could not create connection %s" % e

@@ -15,7 +15,7 @@ email = {'host':'',
 class zpoold(Daemon):
     def run(self):
         while(True):
-           time.sleep(1000)
+           time.sleep(100)
            self.setUp()
 
     def setUp(self):
@@ -71,7 +71,6 @@ if __name__ == '__main__':
         else:
             print "Unknown command"
             sys.exit(2)
-            sys.exit(0)
     else:
         print "usage: %s start|stop|restart" % sys.argv[0]
         sys.exit(2)
