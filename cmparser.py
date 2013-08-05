@@ -187,13 +187,17 @@ class diskmap(cmparser):
                     if line.strip().find('by-id') != -1:
                         ids['by-id'] = line
             return ids
-
     def getdiskMap(self, disks):
+        paths = []
+        names = []
         for name in disks:
-            current_path = self.findPathByName(name) 
-            if current_path != -1 or '':
-                path = current_path 
-            print path
+            path = self.findPathByName(name)
+            if path != '':
+               names.append(name)
+               paths.append(path)
+        print names
+        print paths
+        for name, path in zip(names,paths):
             ids = self.findIdBySymLinks(path)
             self.structure_dict['name'] = name
             self.structure_dict['uniq'] = ids

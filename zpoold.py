@@ -2,7 +2,10 @@ from cmparser import zpool_status,zpool_list_h, zpool_autoreplace, diskmap
 from daemon import Daemon
 from threading import Timer
 
-class zpoold(object):
+class zpoold(Daemon):
+    def run(self):
+        print 'Data'
+
     def setUp(self):
         zl = zpool_list_h()
         za = zpool_autoreplace()
@@ -43,5 +46,6 @@ class zpoold(object):
 
 if __name__ == '__main__':
     z = zpoold()
-    z.setUp()
+    #z.setUp()
+    z.run()
 
