@@ -31,17 +31,15 @@ class zpoold(object):
         for disk in disk_names:
             full_paths.append(dm.findPathByName(disk))
         print full_paths 
-        '''print 'Full paths:'
-        print full_paths
+        #get paths and ids:
         ids = []
-        for path in full_paths:
-            ids.append(dm.findIdBySymLinks(path))
+        for p in [path for path in full_paths if path!='']:
+            ids.append(dm.findIdBySymLinks(p))
         print 'ids:'
         print ids
         print '\n'
         print 'disk map:'
-        print dm.getdiskMap(names)
-        '''
+        print dm.getdiskMap(disk_names)
 
 if __name__ == '__main__':
     z = zpoold()
