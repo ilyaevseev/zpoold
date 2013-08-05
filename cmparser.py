@@ -191,7 +191,7 @@ class diskmap(cmparser):
     def getdiskMap(self, disks):
         for name in disks:
             current_path = self.findPathByName(name) 
-            if current_path != -1:
+            if current_path != -1 or '':
                 path = current_path 
             ids = self.findIdBySymLinks(path)
             self.structure_dict['name'] = name
