@@ -27,6 +27,7 @@ class mail_notification(notification):
                 self.server.login(self.name, self.password)
             else:
                 self.server = smtplib.SMTP(self.host, self.port)
+                self.server.connect(self.host, self.port)
         except Exception, e:
             print "Could not create connection %s" % e
 
