@@ -45,9 +45,15 @@ class mail_notification(notification):
         msg['To'] = toaddr
         msg['Subject'] = subj
         msg.attach(MIMEText(message, 'plain'))
+        sent = False
         try:
-            self.server.sendmail(fromaddr, toaddr, msg.as_string())
+            if sent:
+                #wait few minutes
+                pass
+            else:
+                self.server.sendmail(fromaddr, toaddr, msg.as_string())
+                sent = True
         except Exception, e:
-            print "Could not send mail %s" % e 
+            print "Could not send mail, Error: %s" % e 
         finally:
             self.server.close()

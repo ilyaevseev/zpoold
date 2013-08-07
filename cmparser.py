@@ -188,8 +188,7 @@ class diskmap(cmparser):
                         ids['by-id'] = line
             return ids
     def getdiskMap(self, disks):
-        paths = []
-        names = []
+        paths, names = [], []
         for name in disks:
             path = self.findPathByName(name)
             if path != '':

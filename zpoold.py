@@ -3,13 +3,14 @@ from notifier import mail_notification
 from daemon import Daemon
 import time
 from config import config
+from threading import Timer
 
 
 class zpoold(Daemon):
     def run(self):
-	while(True):
-            time.sleep(int(config['daemon']['daemon_freq_s']))
-            self.setUp()
+        time.sleep(config['daemon']['daemon_freq_s'])
+        self.setUp()
+        self.sent = 'not_sent'
 
     def setUp(self):
         zl = zpool_list_h()
@@ -31,9 +32,17 @@ class zpoold(Daemon):
                     for n in name:
                         disk_names.append(n['name'])
                         if n['state'] != 'ONLINE':
-		            print 'is Down {0} at {1}'.format(n['state'], time.ctime())		
-			    mail = mail_notification()	
-                            mail.sendNotification(message = str(disk_names), subj=n['state'])
+                            if not self.sent == 'waiting' :
+                                mail = mail_notification()
+                                mail.sendNotification(message = str(disk_names), subj=n['state'])
+                                self.sent = True
+                            else:
+                                try:
+                                    t = Timer(int(config['mail_conf']['mail_frequency_min']) * 60, mail.sendNotification, [str(disk_names), n['state']])
+                                    t.start()
+                                    self.sent = 'waiting'
+                                except Exception, e:
+                                    print "Now waiting timer Error: %e" % e
         #print disk_names
         full_paths = []
         #get full paths of the disks
@@ -55,8 +64,7 @@ if __name__ == '__main__':
     z = zpoold(config['daemon']['pid_path'])
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
-            #z.start()
-	     z.run()
+            z.start()
         elif 'stop' == sys.argv[1]:
             z.stop()
         elif 'restart' == sys.argv[1]:
