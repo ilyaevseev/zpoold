@@ -44,16 +44,10 @@ class mail_notification(notification):
         msg['To'] = toaddr
         msg['Subject'] = subj
         msg.attach(MIMEText(message, 'plain'))
-        self.queue = []
-        self.current_mes = ''
         try:
-            if hash(self.current_mes) == hash(msg.as_string()):
-                self.current_mes = msg.as_string()
-            else:
-                    self.queue.append(self.current_mes)
-                    self.server.sendmail(fromaddr, toaddr, msg.as_string())
-                    self.server.close()
-                    #self.server.sendmail(fromaddr, toaddr, msg.as_string())
+            self.queue.append(self.current_mes)
+            self.server.sendmail(fromaddr, toaddr, msg.as_string())
+            self.server.close()
         except Exception, e:
             print "Could not send mail %s" % e 
         finally:

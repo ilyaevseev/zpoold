@@ -1,28 +1,13 @@
 from cmparser import zpool_status,zpool_list_h, zpool_autoreplace, diskmap
 from notifier import mail_notification
 from daemon import Daemon
-from threading import Timer, Event, Thread
 import time
 from config import config
 
-class Timer(Thread):
-
-    def __init__(self, number_of_sec = 30):
-        self.number_of_sec = number_of_sec
-        Thread.__init__(self)
-        self.event = Event()
-    def run(self):
-        while not self.event.is_set():
-            #TODO the job
-            self.event.wait(self.number_of_sec)
-    def stop(self):
-        self.event.set()
 
 class zpoold(Daemon):
     def run(self):
-        while(True):
-           time.sleep(100)
-           self.setUp()
+        self.setUp()
 
     def setUp(self):
         zl = zpool_list_h()
