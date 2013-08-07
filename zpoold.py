@@ -1,16 +1,16 @@
 from cmparser import zpool_status,zpool_list_h, zpool_autoreplace, diskmap
 from notifier import mail_notification
 from daemon import Daemon
-from threading import Timer
+from threading import Timer, Event, Thread
 import time
 from config import config
 
-class Timer(threading.Thread):
+class Timer(Thread):
 
     def __init__(self, number_of_sec = 30):
         self.number_of_sec = number_of_sec
-        threading.Thread.__init__(self)
-        self.event = threading.Event()
+        Thread.__init__(self)
+        self.event = Event()
     def run(self):
         while not self.event.is_set():
             #TODO the job
@@ -27,7 +27,7 @@ class zpoold(Daemon):
     def setUp(self):
         zl = zpool_list_h()
         zs = zpool_status()
-        mail = mail_notification(email['host'], email['port'], email['name'], email['password'], usetls = False)
+        mail = mail_notification()
         dm = diskmap()
         #get full list of avialable zpool names
         zname = [zname['name'] for zname in zl.get_zpool_list_h()]
@@ -45,7 +45,7 @@ class zpoold(Daemon):
                     for n in name:
                         disk_names.append(n['name'])
                         if n['state'] != 'ONLINE':
-                            mail.sendNotification(email['fromaddr'], email['toaddr'], str(conf), n['state'])
+                            mail.sendNotification(message = str(disk_names), subj=n['state'])
         #print disk_names
         full_paths = []
         #get full paths of the disks
