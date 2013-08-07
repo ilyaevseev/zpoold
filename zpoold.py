@@ -7,6 +7,7 @@ from config import config
 
 class zpoold(Daemon):
     def run(self):
+        time.sleep(config['daemon']['daemon_freq_s'])
         self.setUp()
 
     def setUp(self):
