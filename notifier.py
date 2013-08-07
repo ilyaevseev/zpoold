@@ -20,7 +20,7 @@ class mail_notification(notification):
     def __init__(self,host=config['mail_conf']['mail_hostname'], 
             port=config['mail']['mail_port'],\
             name=config['mail']['mail_login'],\
-            password=config['mail']['mail_pass']),\
+            password=config['mail']['mail_pass'],\
             usetls = config['mail_conf']['mail_tls']):
         super(mail_notification, self).__init__(host, port, name, password, usetls)
         try:
@@ -35,9 +35,10 @@ class mail_notification(notification):
         except Exception, e:
             print "Could not create connection %s" % e
 
-    def sendNotification(self, fromaddr=config['mail_conf']['mail_from'],\
+    def sendNotification(self, message, subj,\
+            fromaddr=config['mail_conf']['mail_from'],\
             toaddr=config['mail_conf']['mail_to'],\
-            message, subj, interval=1):
+            interval=config['mail_conf']['mail_frequency_min']):
         msg = MIMEMultipart()
         msg['From'] = fromaddr
         msg['To'] = toaddr
@@ -46,15 +47,13 @@ class mail_notification(notification):
         self.queue = []
         self.current_mes = ''
         try:
-            if queue:
-                if hash(self.current_mes) == hash(msg.as_string()):
-                    self.current_mes = msg.as_string()
-                else:
+            if hash(self.current_mes) == hash(msg.as_string()):
+                self.current_mes = msg.as_string()
+            else:
                     self.queue.append(self.current_mes)
                     self.server.sendmail(fromaddr, toaddr, msg.as_string())
                     self.server.close()
-            else:
-                self.server.sendmail(fromaddr, toaddr, msg.as_string())
+                    #self.server.sendmail(fromaddr, toaddr, msg.as_string())
         except Exception, e:
             print "Could not send mail %s" % e 
         finally:
