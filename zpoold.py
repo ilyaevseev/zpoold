@@ -3,14 +3,20 @@ from notifier import mail_notification
 from daemon import Daemon
 from threading import Timer
 import time
+from config import config
 
-email = {'host':'',
-        'port':'',
-        'name':'',
-        'password':'',
-        'fromaddr':'',
-        'toaddr':'',
-        }
+class Timer(threading.Thread):
+
+    def __init__(self, number_of_sec = 30):
+        self.number_of_sec = number_of_sec
+        threading.Thread.__init__(self)
+        self.event = threading.Event()
+    def run(self):
+        while not self.event.is_set():
+            #TODO the job
+            self.event.wait(self.number_of_sec)
+    def stop(self):
+        self.event.set()
 
 class zpoold(Daemon):
     def run(self):
@@ -29,8 +35,6 @@ class zpoold(Daemon):
         #print zname
         #print '\n'
         #get all disk names
-        zconf = []
-        disk_names = []
         zconf = []
         disk_names = []
         for name in zname:
@@ -60,7 +64,7 @@ class zpoold(Daemon):
 
 if __name__ == '__main__':
     import sys
-    z = zpoold('/var/tmp/zpoold.pid')
+    z = zpoold(config['daemon']['pid_path'])
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             z.start()
