@@ -7,13 +7,13 @@ from config import config
 
 class zpoold(Daemon):
     def run(self):
-        time.sleep(config['daemon']['daemon_freq_s'])
-        self.setUp()
+	while(True):
+            time.sleep(int(config['daemon']['daemon_freq_s']))
+            self.setUp()
 
     def setUp(self):
         zl = zpool_list_h()
         zs = zpool_status()
-        mail = mail_notification()
         dm = diskmap()
         #get full list of avialable zpool names
         zname = [zname['name'] for zname in zl.get_zpool_list_h()]
@@ -31,6 +31,8 @@ class zpoold(Daemon):
                     for n in name:
                         disk_names.append(n['name'])
                         if n['state'] != 'ONLINE':
+		            print 'is Down {0} at {1}'.format(n['state'], time.ctime())		
+			    mail = mail_notification()	
                             mail.sendNotification(message = str(disk_names), subj=n['state'])
         #print disk_names
         full_paths = []
@@ -53,7 +55,8 @@ if __name__ == '__main__':
     z = zpoold(config['daemon']['pid_path'])
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
-            z.start()
+            #z.start()
+	     z.run()
         elif 'stop' == sys.argv[1]:
             z.stop()
         elif 'restart' == sys.argv[1]:

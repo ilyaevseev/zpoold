@@ -18,14 +18,15 @@ class notification(object):
 
 class mail_notification(notification):
     def __init__(self,host=config['mail_conf']['mail_hostname'], 
-            port=config['mail']['mail_port'],\
-            name=config['mail']['mail_login'],\
-            password=config['mail']['mail_pass'],\
-            usetls = config['mail_conf']['mail_tls']):
+            port=config['mail_conf']['mail_port'],\
+            name=config['mail_conf']['mail_login'],\
+            password=config['mail_conf']['mail_pass'],\
+            usetls = config['mail_conf']['use_tls']):
         super(mail_notification, self).__init__(host, port, name, password, usetls)
         try:
             if usetls:
                 self.server = smtplib.SMTP(self.host, self.port)
+		self.server.set_debuglevel(1)
                 self.server.ehlo()
                 self.server.starttls()
                 self.server.ehlo()
@@ -45,9 +46,7 @@ class mail_notification(notification):
         msg['Subject'] = subj
         msg.attach(MIMEText(message, 'plain'))
         try:
-            self.queue.append(self.current_mes)
             self.server.sendmail(fromaddr, toaddr, msg.as_string())
-            self.server.close()
         except Exception, e:
             print "Could not send mail %s" % e 
         finally:
