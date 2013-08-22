@@ -3,19 +3,18 @@ from notifier import mail_notification
 from daemon import Daemon
 import time
 from config import config
-from threading import Timer
 
 
 class zpoold(Daemon):
     def run(self):
-        time.sleep(config['daemon']['daemon_freq_s'])
         self.setUp()
-        self.sent = 'not_sent'
 
     def setUp(self):
         zl = zpool_list_h()
         zs = zpool_status()
         dm = diskmap()
+        self.id_unv = ''
+
         #get full list of avialable zpool names
         zname = [zname['name'] for zname in zl.get_zpool_list_h()]
         #get config
@@ -31,18 +30,16 @@ class zpoold(Daemon):
                 for name in conf:
                     for n in name:
                         disk_names.append(n['name'])
-                        if n['state'] != 'ONLINE':
-                            if not self.sent == 'waiting' :
-                                mail = mail_notification()
-                                mail.sendNotification(message = str(disk_names), subj=n['state'])
-                                self.sent = True
-                            else:
-                                try:
-                                    t = Timer(int(config['mail_conf']['mail_frequency_min']) * 60, mail.sendNotification, [str(disk_names), n['state']])
-                                    t.start()
-                                    self.sent = 'waiting'
-                                except Exception, e:
-                                    print "Now waiting timer Error: %e" % e
+                        if n['state'] == 'UNAVAIL':
+                            mail = mail_notification()
+                            mail.sendNotification(message = str(disk_names), subj=n['state'])
+                            oldpath = dm.findIdBySymLinks((dm.findPathByName(n['name'])))['by-path']
+                            if self.id_unv == '':
+                                self.id_unv = dm.findIdBySymLinks((dm.findPathByName(n['name'])))['by-id']
+                            elif self.id_unv != dm.findIdBySymLinks((dm.findPathByName(n['name'])))['by-id']:
+                                print 'Startinf replacing:'
+                                zs.replaceDisk(zname, oldpath)
+
         #print disk_names
         full_paths = []
         #get full paths of the disks

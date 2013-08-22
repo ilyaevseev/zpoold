@@ -83,7 +83,7 @@ class zpool_status(cmparser):
             ('config', []),
             ('errors', []),
             ])
-        
+
     def isHealthy(self, commands = ['zpool', 'status', '-x']):
         out, error = self.execute(commands)
         if error != None:
@@ -95,11 +95,10 @@ class zpool_status(cmparser):
             else:
                 return False
 
-    def replaceDisk(self, zpool_name, new_disk, failed_disk, commands = ['zpool','replace',\
-            'zpool_name', 'new_disk', 'failed_disk']):
+    def replaceDisk(self, zpool_name, new_disk, commands = ['zpool','replace',\
+            'zpool_name', 'new_disk']):
         commands[2] = zpool_name
         commands[3] = new_disk
-        commands[4] = failed_disk
         out, error = self.execute(commands)
         if error != None:
             raise Exception('There is no zpool avialable, {Error %s}' % error)
