@@ -26,7 +26,7 @@ class mail_notification(notification):
         try:
             if usetls:
                 self.server = smtplib.SMTP(self.host, self.port)
-		self.server.set_debuglevel(1)
+		        #self.server.set_debuglevel(1)
                 self.server.ehlo()
                 self.server.starttls()
                 self.server.ehlo()
