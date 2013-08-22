@@ -48,16 +48,16 @@ class zpoold(Daemon):
         #get full paths of the disks
         for disk in disk_names:
             full_paths.append(dm.findPathByName(disk))
-        #print full_paths 
+        #print full_paths
         #get paths and ids:
         ids = []
         for p in [path for path in full_paths if path!='']:
             ids.append(dm.findIdBySymLinks(p))
-        #print 'ids:'
-        #print ids
-        #print '\n'
-        #print 'disk map:'
-        #print dm.getdiskMap(disk_names)
+        print 'ids:'
+        print ids
+        print '\n'
+        print 'disk map:'
+        print dm.getdiskMap(disk_names)
 
 if __name__ == '__main__':
     import sys
