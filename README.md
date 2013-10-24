@@ -66,3 +66,5 @@ get_autoreplace() method returns:
 ('value', 'off'),
 ('source', 'default')])]
 ```
+
+See also: http://freelansim.ru/tasks/30260
